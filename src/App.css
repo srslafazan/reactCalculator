@@ -2,27 +2,44 @@
   text-align: center;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+.display {
+  font-size: 2em;
+  margin: 2em 0;
 }
 
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
+.calculator-button {
+  font-size: 0.8em;
+  width: 3em;
+  min-width: 3em;
+  height: 3em;
+  min-height: 3em;
+  margin: 0.5em;
+  flex: 1;
 }
 
-.App-title {
-  font-size: 1.5em;
+.digits, .options, .operators {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: nowrap;
+  max-width: 50%;
+  margin: 0 auto;
+  align-items: center;
+  justify-content: center;
 }
 
-.App-intro {
-  font-size: large;
+.options {
+  max-width: 20%;
 }
 
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.operators {
+  max-width: 30%;
+}
+
+.options > .calculator-button {
+  max-width: 5em;
+  margin-bottom: 1em;
+}
+
+.title {
+  margin: 2em;
 }

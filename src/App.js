@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
 const operatorMap = {
@@ -11,6 +10,7 @@ const operatorMap = {
 
 
 class Button extends Component {
+
   constructor(props) {
     super(props)
     this.value = props.value
@@ -18,12 +18,11 @@ class Button extends Component {
 
   render() {
     return (
-      <button onClick={() => this.props.resolver(this.value)}>
+      <button className="calculator-button" onClick={() => this.props.resolver(this.value)}>
         {this.value}
       </button>
     )
   }
-
 }
 
 
@@ -31,14 +30,14 @@ class App extends Component {
 
   constructor(props) {
     super(props)
-    this.digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, '.']
+    this.digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']
     this.options = ['clear', '=']
     this.operators = ['+','-', '*', '/']
-    this.value = 0
 
     this.state = {
-      queue: [],
+      input: '',
       operator: null,
+      calculated: null,
     }
 
     this.calculate = this.calculate.bind(this)
@@ -49,89 +48,94 @@ class App extends Component {
   }
 
   calculate() {
-    const { queue, operator, value } = this.state
+    const { input, operator, calculated } = this.state
     if (!operator) return
-    const newValue = operatorMap[operator](queue.first, queue.last)
 
-    console.log(`Set first to ${newValue.toString()} and set value to ${newValue}`)
+    const newCalculated = operatorMap[operator](calculated, input)
+    console.log(`Set calculated to ${newCalculated}`)
 
     this.setState({
-      queue: {
-        first: newValue.toString(),
-        last: '',
-      },
-      value: newValue,
+      input: '',
+      calculated: newCalculated,
       operator: null,
     })
   }
 
 
   optionResolver(option) {
-    console.log(`Running current option, ${option}.`)
+    console.log(`Running input option, ${option}.`)
     switch(option) {
+
       case 'clear':
-      this.setState({ queue: { first: '', last: ''}, value: 0, operator: null })
+        this.setState({ input: '', calculated: null, operator: null })
         break;
+
       case '=':
-        this.calculate()
+        if (!this.state.operator) {
+          this.setState({ calculated: parseFloat(this.state.input), input: '' })
+        } else {
+          this.calculate()
+        }
         break;
+
+      default: return
     }
   }
 
   digitResolver(digit) {
-    const { queue, operator, value } = this.state
-    const newQueue = Object.assign({}, queue)
-
-    console.log(`Pushing digit ${digit} to queue.`)
-
-    if (!operator) {
-      if (!newQueue.first) {
-
-        // TODO - prevent multiple "." characters
-        newQueue.first = digit.toString()
-      } else {
-        newQueue.first += digit.toString()
-      }
-    } else {
-      if (!newQueue.last) {
-        // TODO - prevent multiple "." characters
-        newQueue.last = digit.toString()
-      } else {
-        newQueue.last += digit.toString()
-      }
-    }
-    console.log(newQueue)
-    this.setState({ queue: newQueue })
+    const input = this.state.input + digit
+    console.log(`Pushing input digit ${digit}.`)
+    this.setState({ input })
   }
 
-
   operatorResolver(operator) {
-    const { queue } = this.state
-    console.log(`Set current operator to ${operator}.`)
-    console.log('last', this.last)
+    const { input, calculated } = this.state
+    console.log(`Set input operator to ${operator}.`)
+
     this.setState({ operator })
-    if (queue.last) {
-      console.log(`Calculate with ${operator}.`)
+
+    if (!calculated) {
+      return this.setState({
+        calculated: parseFloat(input),
+        input: '',
+      })
+    }
+
+    if (input && operator) {
       this.calculate()
+      this.setState({ operator })
     }
   }
 
   displayValue() {
-    const { queue, value } = this.state
-    return queue.last || queue.first || value || 0
+    const { input, calculated } = this.state
+    const display = input || calculated || 0
+    return (
+      <h1 className="display">
+        {display}
+      </h1>
+    )
   }
 
   render() {
     return (
       <div className="App">
 
-        {this.options.map((option, index) => (<Button key={index} value={option} resolver={this.optionResolver} />))}
-
-        {this.digits.map((digit, index) => (<Button key={index} value={digit} resolver={this.digitResolver} />))}
-
-        {this.operators.map((operator, index) => (<Button key={index} value={operator} resolver={this.operatorResolver} />))}
-
         {this.displayValue()}
+
+        <div className="options">
+          {this.options.map((option, index) => (<Button key={index} value={option} resolver={this.optionResolver} />))}
+        </div>
+
+        <div className="digits">
+          {this.digits.map((digit, index) => (<Button key={index} value={digit} resolver={this.digitResolver} />))}
+        </div>
+
+        <div className="operators">
+          {this.operators.map((operator, index) => (<Button key={index} value={operator} resolver={this.operatorResolver} />))}
+        </div>
+
+        <h1 className="title">React Calculator</h1>
 
       </div>
     );
